@@ -65,22 +65,22 @@ Get the value with ":echo &rtp" in your ViAI, then for Claude Code: >
 ==============================================================================
 4. Tools					*vim9mcp-tools*
 
-						*vim9mcp-help_search*
-help_search {pattern}
+						*vim9mcp-viai_help_search*
+viai_help_search {pattern}
 		Lists the help tags that match the Vim regular expression
 		{pattern}, with the help file each is in, at most 50.  The
 		tags are those of the "doc/tags" files in 'runtimepath'.
 
-						*vim9mcp-help_read*
-help_read {tag}
+						*vim9mcp-viai_help_read*
+viai_help_read {tag}
 		Returns the help text of {tag}: from the line of the tag to
 		the line before the next tag that follows an empty line, at
 		most 300 lines.  The first line is the help file and the line
 		number of the tag.  {tag} is matched exactly.
 
-						*vim9mcp-vimscript_check*
-vimscript_check {path}
-vimscript_check {source}
+						*vim9mcp-viai_vimscript_check*
+viai_vimscript_check {path}
+viai_vimscript_check {source}
 		Checks a Vim script without running it: another ViAI reads it
 		with ":source ++dryrun", see |:source-dryrun|, and the errors
 		it reports are returned, or "No errors found".  Give either

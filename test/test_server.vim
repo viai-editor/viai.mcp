@@ -31,7 +31,7 @@ enddef
 def g:Test_tools_list()
   helper.Initialize()
   var tools = helper.Request('tools/list').result.tools
-  assert_equal(['help_read', 'help_search', 'vimscript_check'],
+  assert_equal(['viai_help_read', 'viai_help_search', 'viai_vimscript_check'],
     tools->mapnew((_, t) => t.name)->sort())
   for tool in tools
     assert_equal('object', tool.inputSchema.type, tool.name)
@@ -48,7 +48,7 @@ enddef
 def g:Test_arguments_not_object()
   helper.Initialize()
   var resp = helper.Request('tools/call',
-    {name: 'help_read', arguments: ['tag']})
+    {name: 'viai_help_read', arguments: ['tag']})
   assert_equal(-32602, resp.error.code)
 enddef
 

@@ -11,13 +11,13 @@ that ViAI: its help files, the help files of the plugins on the
 
 ## Tools
 
-- `help_search {pattern}`: the help tags that match a Vim regular
+- `viai_help_search {pattern}`: the help tags that match a Vim regular
   expression, with the help file each is in, at most 50.
-- `help_read {tag}`: the help text of a tag, from the tag to the next one,
-  at most 300 lines.
-- `vimscript_check {path}` or `vimscript_check {source}`: the errors that
-  ViAI reports when it reads the script with `:source ++dryrun`, which runs
-  nothing in it.
+- `viai_help_read {tag}`: the help text of a tag, from the tag to the next
+  one, at most 300 lines.
+- `viai_vimscript_check {path}` or `viai_vimscript_check {source}`: the
+  errors that ViAI reports when it reads the script with `:source ++dryrun`,
+  which runs nothing in it.
 
 ## Requirements
 

@@ -31,14 +31,14 @@ def g:Test_runtimepath_from_environment()
   # $VIMRUNTIME is left out: the server adds it.
   helper.StartServer(ServerCommand(), {VIM9MCP_RUNTIMEPATH: PLUGIN})
   helper.Handshake()
-  var result = helper.CallTool('help_search', {pattern: '^:XPlugin'})
+  var result = helper.CallTool('viai_help_search', {pattern: '^:XPlugin'})
   assert_equal(":XPluginCmd\txplugin.txt\n:XPluginOther\txplugin.txt",
     helper.TextOf(result))
-  result = helper.CallTool('help_read', {tag: ':XPluginCmd'})
+  result = helper.CallTool('viai_help_read', {tag: ':XPluginCmd'})
   assert_equal("xplugin.txt:5\nXPluginCmd\t\t\t\t\t*:XPluginCmd*\n"
     .. "\tDoes the thing.", helper.TextOf(result))
   # The help of ViAI is still there.
-  result = helper.CallTool('help_read', {tag: 'ch_sendexpr()'})
+  result = helper.CallTool('viai_help_read', {tag: 'ch_sendexpr()'})
   assert_false(result.isError)
 enddef
 
@@ -53,7 +53,7 @@ def g:Test_runtimepath_without_environment()
     &runtimepath = save_rtp
   endtry
   helper.Handshake()
-  var result = helper.CallTool('help_search', {pattern: '^:XPlugin'})
+  var result = helper.CallTool('viai_help_search', {pattern: '^:XPlugin'})
   assert_match('^No help tag matches', helper.TextOf(result))
 enddef
 
@@ -68,11 +68,11 @@ def g:Test_command_passes_runtimepath()
     &runtimepath = save_rtp
   endtry
   helper.Handshake()
-  var result = helper.CallTool('help_search', {pattern: '^:XPluginCmd$'})
+  var result = helper.CallTool('viai_help_search', {pattern: '^:XPluginCmd$'})
   assert_equal(":XPluginCmd\txplugin.txt", helper.TextOf(result))
 enddef
 
-def g:Test_vimscript_check_import_by_name()
+def g:Test_viai_vimscript_check_import_by_name()
   mkdir(PLUGIN .. '/import', 'pR')
   writefile(['vim9script', 'export def Num(): number', '  return 1',
     'enddef'], PLUGIN .. '/import/xlib.vim')
@@ -82,14 +82,14 @@ def g:Test_vimscript_check_import_by_name()
   helper.StartServer(ServerCommand(), {VIM9MCP_RUNTIMEPATH: PLUGIN})
   helper.Handshake()
   assert_equal('No errors found', helper.TextOf(
-    helper.CallTool('vimscript_check', {source: source})))
+    helper.CallTool('viai_vimscript_check', {source: source})))
   helper.StopServer()
 
   # Not found without the plugin on 'runtimepath'.
   helper.StartServer(ServerCommand())
   helper.Handshake()
   assert_match('E1053: Could not import "xlib.vim"', helper.TextOf(
-    helper.CallTool('vimscript_check', {source: source})))
+    helper.CallTool('viai_vimscript_check', {source: source})))
 enddef
 
 # vim: ts=2 sw=0 et

@@ -3,9 +3,9 @@ vim9script
 # vim9mcp - the tools
 # Maintainer: Hirohito Higashi <h.east.727@gmail.com>
 
-# At most this many tags are listed by help_search.
+# At most this many tags are listed by viai_help_search.
 const MAX_TAGS = 50
-# At most this many lines are returned by help_read.
+# At most this many lines are returned by viai_help_read.
 const MAX_LINES = 300
 
 # A line that defines a help tag at its end, such as
@@ -14,7 +14,7 @@ const TAG_LINE = '\*[^*|" \t]\+\*\s*$'
 
 const DEFS = [
   {
-    name: 'help_search',
+    name: 'viai_help_search',
     description: 'Find Vim help tags that match a Vim regular expression,'
       .. ' e.g. "^ch_send" or "dryrun".  Lists the tags with the help file'
       .. $' they are in, at most {MAX_TAGS}.',
@@ -28,7 +28,7 @@ const DEFS = [
     },
   },
   {
-    name: 'help_read',
+    name: 'viai_help_read',
     description: 'Read the Vim help text of a tag, e.g. "ch_sendexpr()",'
       .. ' "''tabstop''" or ":source-dryrun".  Returns the text from the'
       .. $' tag to the next tag, at most {MAX_LINES} lines.',
@@ -41,7 +41,7 @@ const DEFS = [
     },
   },
   {
-    name: 'vimscript_check',
+    name: 'viai_vimscript_check',
     description: 'Check a Vim script without running it, with ":source'
       .. ' ++dryrun" of ViAI: the script is read, its :def functions are'
       .. ' compiled and the errors are returned.  Give either "path" or'
@@ -192,9 +192,9 @@ def VimscriptCheck(args: dict<any>): dict<any>
 enddef
 
 export def Call(name: string, args: dict<any>): dict<any>
-  if name == 'help_search'
+  if name == 'viai_help_search'
     return HelpSearch(args)
-  elseif name == 'help_read'
+  elseif name == 'viai_help_read'
     return HelpRead(args)
   endif
   return VimscriptCheck(args)
