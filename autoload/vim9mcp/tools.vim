@@ -44,7 +44,9 @@ const DEFS = [
     name: 'viai_vimscript_check',
     description: 'Check a Vim script without running it, with ":source'
       .. ' ++dryrun" of ViAI: the script is read, its :def functions are'
-      .. ' compiled and the errors are returned.  Give either "path" or'
+      .. ' compiled and the errors are returned.  Other commands at the'
+      .. ' script level are not run or checked.  To check Vim9 script'
+      .. ' commands, put them in a :def function.  Give either "path" or'
       .. ' "source".',
     inputSchema: {
       type: 'object',

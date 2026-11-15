@@ -83,10 +83,13 @@ viai_vimscript_check {path}
 viai_vimscript_check {source}
 		Checks a Vim script without running it: another ViAI reads it
 		with ":source ++dryrun", see |:source-dryrun|, and the errors
-		it reports are returned, or "No errors found".  Give either
-		{path}, the file of the script, or {source}, the text of the
-		script.  For {source} the name of the script in the errors is
-		"<source>"; a relative "import" in it is not found.
+		it reports are returned, or "No errors found".  Only the
+		definitions take effect: other commands at the script level
+		are not run or checked.  To check Vim9 script commands, put
+		them in a |:def| function.  Give either {path}, the file of
+		the script, or {source}, the text of the script.  For {source}
+		the name of the script in the errors is "<source>"; a relative
+		"import" in it is not found.
 
 A tool that cannot do its work returns the reason with "isError" set: an
 argument missing or of the wrong type, an invalid pattern, a tag or a file
