@@ -1,7 +1,7 @@
 vim9script
 # The help of plugins, on the 'runtimepath' given to the server.
 
-import autoload '../autoload/vim9mcp.vim'
+import autoload '../autoload/viaimcp.vim'
 import './helper.vim'
 
 const HERE = expand('<sfile>:p:h')
@@ -44,14 +44,14 @@ enddef
 # The command of the server without the 'runtimepath' of this Vim.
 def ServerCommand(): list<string>
   return [v:progpath, '--clean', '--stdio-channel', '-S',
-    fnamemodify(HERE, ':h') .. '/autoload/vim9mcp.vim']
+    fnamemodify(HERE, ':h') .. '/autoload/viaimcp.vim']
 enddef
 
 def g:Test_runtimepath_from_environment()
   mkdir(PLUGIN, 'R')
   AddHelp()
   # $VIMRUNTIME is left out: the server adds it.
-  helper.StartServer(ServerCommand(), {VIM9MCP_RUNTIMEPATH: PLUGIN})
+  helper.StartServer(ServerCommand(), {VIAIMCP_RUNTIMEPATH: PLUGIN})
   helper.Handshake()
   var result = helper.CallTool('viai_help_search', {pattern: '^:XPlugin'})
   assert_equal(":XPluginCmd\txplugin.txt\n:XPluginOther\txplugin.txt",
@@ -67,7 +67,7 @@ enddef
 def g:Test_viai_help_read_section()
   mkdir(PLUGIN, 'R')
   AddSections()
-  helper.StartServer(ServerCommand(), {VIM9MCP_RUNTIMEPATH: PLUGIN})
+  helper.StartServer(ServerCommand(), {VIAIMCP_RUNTIMEPATH: PLUGIN})
   helper.Handshake()
   # The heading and its tag on one line.
   var result = helper.CallTool('viai_help_read', {tag: 'xsection-first'})
@@ -117,7 +117,7 @@ def g:Test_command_passes_runtimepath()
   var save_rtp = &runtimepath
   &runtimepath ..= ',' .. PLUGIN
   try
-    helper.StartServer(vim9mcp.Command())
+    helper.StartServer(viaimcp.Command())
   finally
     &runtimepath = save_rtp
   endtry
@@ -133,7 +133,7 @@ def g:Test_viai_vimscript_check_import_by_name()
   var source = "vim9script\nimport 'xlib.vim'\n"
     .. "def F(): number\n  return xlib.Num()\nenddef\n"
 
-  helper.StartServer(ServerCommand(), {VIM9MCP_RUNTIMEPATH: PLUGIN})
+  helper.StartServer(ServerCommand(), {VIAIMCP_RUNTIMEPATH: PLUGIN})
   helper.Handshake()
   assert_equal('No errors found', helper.TextOf(
     helper.CallTool('viai_vimscript_check', {source: source})))

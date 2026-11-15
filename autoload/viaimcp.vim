@@ -1,15 +1,15 @@
 vim9script
 
-# vim9mcp - a Model Context Protocol server for Vim help and Vim script, run
-# by ViAI itself
+# viai.mcp - a Model Context Protocol server for ViAI help and Vim script,
+# run by ViAI itself
 # Maintainer: Hirohito Higashi <h.east.727@gmail.com>
 #
 # A client starts it as
-#     viai --clean --stdio-channel -S /path/to/autoload/vim9mcp.vim
+#     viai --clean --stdio-channel -S /path/to/autoload/viaimcp.vim
 # and talks MCP to it on stdin and stdout.  Command() is that command line
 # for the ViAI it is called in, with its 'runtimepath'.
 
-import autoload './vim9mcp/tools.vim'
+import autoload './viaimcp/tools.vim'
 
 export const VERSION = '0.1.001'
 
@@ -30,7 +30,7 @@ var conn: channel
 
 export def Command(): list<string>
   if !has(PATCH)
-    throw 'vim9mcp: the server needs ViAI 1.0.0050 or later'
+    throw 'viai.mcp: the server needs ViAI 1.0.0050 or later'
   endif
   var vim = v:progpath
   # The server needs no GUI: use the console program next to gviai.exe.
@@ -41,17 +41,17 @@ export def Command(): list<string>
     endif
   endif
   return [vim, '--clean', '--stdio-channel',
-    '--cmd', 'let $VIM9MCP_RUNTIMEPATH = ' .. string(&runtimepath),
+    '--cmd', 'let $VIAIMCP_RUNTIMEPATH = ' .. string(&runtimepath),
     '-S', SCRIPT]
 enddef
 
 # With --clean the plugins of the user are not on 'runtimepath':
-# $VIM9MCP_RUNTIMEPATH gives the value to use.  Nothing on it is run.
+# $VIAIMCP_RUNTIMEPATH gives the value to use.  Nothing on it is run.
 def SetRuntimepath()
-  if $VIM9MCP_RUNTIMEPATH == ''
+  if $VIAIMCP_RUNTIMEPATH == ''
     return
   endif
-  &runtimepath = $VIM9MCP_RUNTIMEPATH
+  &runtimepath = $VIAIMCP_RUNTIMEPATH
   # The help of this ViAI is always there.
   if index(split(&runtimepath, ','), $VIMRUNTIME) < 0
     &runtimepath ..= ',' .. escape($VIMRUNTIME, ' ,')
@@ -72,7 +72,7 @@ def Initialize(params: dict<any>): dict<any>
     protocolVersion: index(PROTOCOL_VERSIONS, wanted) >= 0
       ? wanted : PROTOCOL_VERSIONS[0],
     capabilities: {tools: {}},
-    serverInfo: {name: 'vim9mcp', version: VERSION},
+    serverInfo: {name: 'viai.mcp', version: VERSION},
   }
 enddef
 
@@ -120,7 +120,7 @@ enddef
 # still goes to stderr, where the client can show it.
 def Die(msg: string)
   &verbose = 1
-  echoerr 'vim9mcp: ' .. msg
+  echoerr 'viai.mcp: ' .. msg
   cquit
 enddef
 
@@ -146,7 +146,7 @@ if index(v:argv, '--stdio-channel') >= 0
 endif
 
 # test/run sets this to have every :def compiled as the script is read.
-if $VIM9MCP_COMPILE_CHECK != ''
+if $VIAIMCP_COMPILE_CHECK != ''
   defcompile
 endif
 

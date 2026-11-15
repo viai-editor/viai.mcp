@@ -8,7 +8,7 @@ def g:Test_initialize()
   var result = resp.result
   assert_equal('2025-06-18', result.protocolVersion)
   assert_equal({tools: {}}, result.capabilities)
-  assert_equal('vim9mcp', result.serverInfo.name)
+  assert_equal('viai.mcp', result.serverInfo.name)
 enddef
 
 def g:Test_initialize_unknown_version()

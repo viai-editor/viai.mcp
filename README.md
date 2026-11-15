@@ -1,4 +1,4 @@
-# vim9mcp
+# viai.mcp
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server for ViAI
 help and Vim script, run by [ViAI](https://github.com/viai-editor/viai)
@@ -25,36 +25,36 @@ ViAI 1.0.0050 or later, which has the "mcp" channel mode.
 
 ## Setup
 
-Put vim9mcp on the `'runtimepath'` of your ViAI for `:help vim9mcp` and
-`vim9mcp#Command()`, with a plugin manager, vim-plug for instance:
+Put viai.mcp on the `'runtimepath'` of your ViAI for `:help viaimcp` and
+`viaimcp#Command()`, with a plugin manager, vim-plug for instance:
 
 ```vim
-Plug 'h-east/vim9mcp'
+Plug 'h-east/viai.mcp'
 ```
 
 There is no `plugin/` directory in it, so ViAI runs none of it at startup.
 
-The MCP client starts the server with `bin/vim9mcp` (`bin\vim9mcp.cmd` on
-MS-Windows).  It runs `viai` from `$PATH`; `$VIM9MCP_VIM` names another
+The MCP client starts the server with `bin/viaimcp` (`bin\viaimcp.cmd` on
+MS-Windows).  It runs `viai` from `$PATH`; `$VIAIMCP_VIM` names another
 ViAI.
 
 For Claude Code:
 
 ```sh
-claude mcp add vim9mcp -- /path/to/vim9mcp/bin/vim9mcp
+claude mcp add viaimcp -- /path/to/viai.mcp/bin/viaimcp
 ```
 
 The server is started with `--clean`, so the plugins of the user are not on
-`'runtimepath'`.  `$VIM9MCP_RUNTIMEPATH` gives the `'runtimepath'` to use,
+`'runtimepath'`.  `$VIAIMCP_RUNTIMEPATH` gives the `'runtimepath'` to use,
 for the help files of the plugins and the scripts imported by name; nothing
 on it is run.  Get the value with `:echo &rtp` in your ViAI:
 
 ```sh
-claude mcp add vim9mcp -e VIM9MCP_RUNTIMEPATH=... \
-    -- /path/to/vim9mcp/bin/vim9mcp
+claude mcp add viaimcp -e VIAIMCP_RUNTIMEPATH=... \
+    -- /path/to/viai.mcp/bin/viaimcp
 ```
 
-See `:help vim9mcp` for the details.
+See `:help viaimcp` for the details.
 
 ## Tests
 

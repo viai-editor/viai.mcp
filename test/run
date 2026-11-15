@@ -12,7 +12,7 @@ rm -f "$here/messages"
 
 # Have every :def compiled while the scripts are read, so that a mistake in
 # one that no test reaches is reported here.
-VIM9MCP_COMPILE_CHECK=1 \
+VIAIMCP_COMPILE_CHECK=1 \
 "${VIMPROG:-viai}" -u NONE -N -n --not-a-term -S "$here/runtest.vim" \
     >/dev/null 2>&1
 status=$?

@@ -1,6 +1,6 @@
 vim9script
 
-# vim9mcp - the tools
+# viai.mcp - the tools
 # Maintainer: Hirohito Higashi <h.east.727@gmail.com>
 
 # At most this many tags are listed by viai_help_search.

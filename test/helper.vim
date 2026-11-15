@@ -1,12 +1,12 @@
 vim9script
 # What the tests use to drive the server: this ViAI is the client.
 
-import autoload '../autoload/vim9mcp.vim'
+import autoload '../autoload/viaimcp.vim'
 
 var job: job
 export var stderr: list<string> = []
 
-export def StartServer(cmd = vim9mcp.Command(), env: dict<string> = {})
+export def StartServer(cmd = viaimcp.Command(), env: dict<string> = {})
   stderr = []
   job = job_start(cmd, {
     in_mode: 'mcp', out_mode: 'mcp', err_mode: 'nl',
@@ -42,7 +42,7 @@ export def Handshake(version = '2025-06-18'): dict<any>
   var resp = Request('initialize', {
     protocolVersion: version,
     capabilities: {},
-    clientInfo: {name: 'vim9mcp-test', version: '0'},
+    clientInfo: {name: 'viaimcp-test', version: '0'},
   })
   ch_sendexpr(job, {method: 'notifications/initialized'})
   return resp
