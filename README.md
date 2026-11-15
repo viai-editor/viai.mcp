@@ -1,6 +1,6 @@
 # vim9mcp
 
-A [Model Context Protocol](https://modelcontextprotocol.io) server for Vim
+A [Model Context Protocol](https://modelcontextprotocol.io) server for ViAI
 help and Vim script, run by [ViAI](https://github.com/viai-editor/viai)
 itself.
 

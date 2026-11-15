@@ -15,7 +15,7 @@ const TAG_LINE = '\*[^*|" \t]\+\*\s*$'
 const DEFS = [
   {
     name: 'viai_help_search',
-    description: 'Find Vim help tags that match a Vim regular expression,'
+    description: 'Find ViAI help tags that match a Vim regular expression,'
       .. ' e.g. "^ch_send" or "dryrun".  Lists the tags with the help file'
       .. $' they are in, at most {MAX_TAGS}.',
     inputSchema: {
@@ -29,7 +29,7 @@ const DEFS = [
   },
   {
     name: 'viai_help_read',
-    description: 'Read the Vim help text of a tag, e.g. "ch_sendexpr()",'
+    description: 'Read the ViAI help text of a tag, e.g. "ch_sendexpr()",'
       .. ' "''tabstop''" or ":source-dryrun".  Returns the text from the'
       .. $' tag to the next tag, at most {MAX_LINES} lines.',
     inputSchema: {
@@ -163,8 +163,8 @@ def VimscriptCheck(args: dict<any>): dict<any>
     file = tmp
   endif
 
-  # A Vim of its own reads the script: what a dry run defines stays in that
-  # Vim.  It finds what the script imports by name on the same
+  # A ViAI of its own reads the script: what a dry run defines stays in that
+  # ViAI.  It finds what the script imports by name on the same
   # 'runtimepath'.
   var out = tempname()
   var cmd = [v:progpath, '--clean', '-es', '-N',

@@ -16,7 +16,7 @@ CONTENTS					*vim9mcp-contents*
 1. Introduction					*vim9mcp-introduction*
 
 vim9mcp is a server of the Model Context Protocol (MCP) that gives an AI tool
-the help files of Vim and a check of Vim script.  It is written in Vim9
+the help files of ViAI and a check of Vim script.  It is written in Vim9
 script and runs in a ViAI of its own, which talks MCP on its stdin and stdout
 with the "mcp" channel mode, see |model-context-protocol|.
 
