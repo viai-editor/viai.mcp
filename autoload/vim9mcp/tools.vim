@@ -1,0 +1,201 @@
+vim9script
+
+# vim9mcp - the tools
+# Maintainer: Hirohito Higashi <h.east.727@gmail.com>
+
+# At most this many tags are listed by help_search.
+const MAX_TAGS = 50
+# At most this many lines are returned by help_read.
+const MAX_LINES = 300
+
+# A line that defines a help tag at its end, such as
+#     ch_sendexpr({handle}, {expr} [, {options}])	*ch_sendexpr()*
+const TAG_LINE = '\*[^*|" \t]\+\*\s*$'
+
+const DEFS = [
+  {
+    name: 'help_search',
+    description: 'Find Vim help tags that match a Vim regular expression,'
+      .. ' e.g. "^ch_send" or "dryrun".  Lists the tags with the help file'
+      .. $' they are in, at most {MAX_TAGS}.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        pattern: {type: 'string',
+          description: 'A Vim regular expression for the tag names'},
+      },
+      required: ['pattern'],
+    },
+  },
+  {
+    name: 'help_read',
+    description: 'Read the Vim help text of a tag, e.g. "ch_sendexpr()",'
+      .. ' "''tabstop''" or ":source-dryrun".  Returns the text from the'
+      .. $' tag to the next tag, at most {MAX_LINES} lines.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        tag: {type: 'string', description: 'The exact help tag'},
+      },
+      required: ['tag'],
+    },
+  },
+  {
+    name: 'vimscript_check',
+    description: 'Check a Vim script without running it, with ":source'
+      .. ' ++dryrun" of ViAI: the script is read, its :def functions are'
+      .. ' compiled and the errors are returned.  Give either "path" or'
+      .. ' "source".',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: {type: 'string', description: 'The file of the script'},
+        source: {type: 'string', description: 'The text of the script'},
+      },
+    },
+  },
+]
+
+export def List(): list<dict<any>>
+  return DEFS
+enddef
+
+export def Exists(name: string): bool
+  return DEFS->indexof((_, d) => d.name == name) >= 0
+enddef
+
+def Text(text: string, is_error = false): dict<any>
+  return {content: [{type: 'text', text: text}], isError: is_error}
+enddef
+
+# Have taglist() look in the help tags of 'runtimepath'.
+def SetHelpTags()
+  &tags = globpath(&runtimepath, 'doc/tags', false, true)
+    ->map((_, f) => escape(f, ' ,'))->join(',')
+enddef
+
+def HelpSearch(args: dict<any>): dict<any>
+  var pattern = args->get('pattern', '')
+  if type(pattern) != v:t_string || pattern == ''
+    return Text('"pattern" must be a non-empty string', true)
+  endif
+  # taglist() gives no error for an invalid pattern, a match does.
+  try
+    eval '' =~ pattern
+  catch
+    return Text($'Invalid pattern "{pattern}": {v:exception}', true)
+  endtry
+  SetHelpTags()
+  var found = taglist(pattern)
+  if found->empty()
+    return Text($'No help tag matches "{pattern}"')
+  endif
+  var lines = found[: MAX_TAGS - 1]
+    ->mapnew((_, t) => t.name .. "\t" .. fnamemodify(t.filename, ':t'))
+  if len(found) > MAX_TAGS
+    add(lines, $'... and {len(found) - MAX_TAGS} more')
+  endif
+  return Text(lines->join("\n"))
+enddef
+
+def HelpRead(args: dict<any>): dict<any>
+  var tag = args->get('tag', '')
+  if type(tag) != v:t_string || tag == ''
+    return Text('"tag" must be a non-empty string', true)
+  endif
+  SetHelpTags()
+  var found = taglist('^' .. escape(tag, '\^$.*~[]') .. '$')
+    ->filter((_, t) => t.name ==# tag)
+  if found->empty()
+    return Text($'No help tag "{tag}"', true)
+  endif
+  var file = found[0].filename
+  var lines = readfile(file)
+  var start = match(lines, '\V*' .. escape(tag, '\') .. '*')
+  if start < 0
+    return Text($'Tag "{tag}" not found in {file}', true)
+  endif
+
+  # The tags of the text may take more than one line.
+  var i = start + 1
+  while i < len(lines) && lines[i] =~ TAG_LINE
+    i += 1
+  endwhile
+  # The text ends before the next tag that follows an empty line, a line of
+  # "=" that starts a section, or the modeline.
+  while i < len(lines)
+    if (lines[i] =~ TAG_LINE && lines[i - 1] =~ '^\s*$')
+        || lines[i] =~ '^=\{20,}$' || lines[i] =~ '^ vim:'
+      break
+    endif
+    i += 1
+  endwhile
+  var text = lines[start : i - 1]
+  var cut = len(text) > MAX_LINES
+  text = text[: MAX_LINES - 1]
+  # Without the empty lines at the end.
+  while !text->empty() && text[-1] =~ '^\s*$'
+    remove(text, -1)
+  endwhile
+  var head = $'{fnamemodify(file, ':t')}:{start + 1}'
+  return Text(([head] + text + (cut ? ['[...]'] : []))->join("\n"))
+enddef
+
+def VimscriptCheck(args: dict<any>): dict<any>
+  if args->has_key('path') == args->has_key('source')
+    return Text('Give either "path" or "source"', true)
+  endif
+  var file: string
+  var tmp = ''
+  if args->has_key('path')
+    var path = args.path
+    if type(path) != v:t_string || !filereadable(path)
+      return Text($'Cannot read "{path}"', true)
+    endif
+    file = fnamemodify(path, ':p')
+  else
+    var source = args.source
+    if type(source) != v:t_string
+      return Text('"source" must be a string', true)
+    endif
+    tmp = tempname() .. '.vim'
+    writefile(split(source, "\n", true), tmp)
+    file = tmp
+  endif
+
+  # A Vim of its own reads the script: what a dry run defines stays in that
+  # Vim.
+  var out = tempname()
+  var cmd = [v:progpath, '--clean', '-es', '-N',
+    '--cmd', 'silent! language messages C',
+    '-c', 'redir! > ' .. fnameescape(out),
+    '-c', 'silent! source ++dryrun ' .. fnameescape(file),
+    '-c', 'redir END', '-c', 'qa!']
+  system(cmd->mapnew((_, a) => shellescape(a))->join(' '), '')
+  var lines = filereadable(out) ? readfile(out) : []
+  delete(out)
+  if tmp != ''
+    delete(tmp)
+  endif
+
+  lines->filter((_, l) => l != '')
+  if lines->empty()
+    return Text('No errors found')
+  endif
+  var text = lines->join("\n")
+  if tmp != ''
+    text = substitute(text, '\V' .. escape(tmp, '\'), '<source>', 'g')
+  endif
+  return Text(text)
+enddef
+
+export def Call(name: string, args: dict<any>): dict<any>
+  if name == 'help_search'
+    return HelpSearch(args)
+  elseif name == 'help_read'
+    return HelpRead(args)
+  endif
+  return VimscriptCheck(args)
+enddef
+
+# vim: ts=2 sw=0 et

@@ -1,0 +1,92 @@
+*vim9mcp.txt*	A Model Context Protocol server for Vim help and Vim script
+
+Author:  Hirohito Higashi <h.east.727@gmail.com>
+License: Vim license, see |license|
+
+==============================================================================
+CONTENTS					*vim9mcp-contents*
+
+1. Introduction				|vim9mcp-introduction|
+2. Requirements				|vim9mcp-requirements|
+3. Setup				|vim9mcp-setup|
+4. Tools				|vim9mcp-tools|
+5. Development				|vim9mcp-development|
+
+==============================================================================
+1. Introduction					*vim9mcp-introduction*
+
+vim9mcp is a server of the Model Context Protocol (MCP) that gives an AI tool
+the help files of Vim and a check of Vim script.  It is written in Vim9
+script and runs in a ViAI of its own, which talks MCP on its stdin and stdout
+with the "mcp" channel mode, see |model-context-protocol|.
+
+The answers come from that ViAI: its help files, the help files of the
+plugins on 'runtimepath', and what ViAI reports when it reads a script.
+
+==============================================================================
+2. Requirements					*vim9mcp-requirements*
+
+ViAI 1.0.0050 or later, which has the "mcp" channel mode.  Vim itself does
+not have it.
+
+==============================================================================
+3. Setup					*vim9mcp-setup*
+
+The server is started by the MCP client.  The command is in bin/: >
+	bin/vim9mcp		(Unix)
+	bin\vim9mcp.cmd		(MS-Windows)
+<It runs "viai" from $PATH; $VIM9MCP_VIM names another ViAI.
+
+For Claude Code: >
+	claude mcp add vim9mcp -- /path/to/vim9mcp/bin/vim9mcp
+<
+From ViAI, vim9mcp#Command() returns the command line for the ViAI it is
+called in: >
+	:echo vim9mcp#Command()
+<						*vim9mcp#Command()*
+vim9mcp#Command()
+		Returns the command that starts the server as a |List|: the
+		console program of this ViAI with "--clean", "--stdio-channel"
+		and "-S" with the script of the server.  Throws an error when
+		this is not ViAI 1.0.0050 or later.
+
+==============================================================================
+4. Tools					*vim9mcp-tools*
+
+						*vim9mcp-help_search*
+help_search {pattern}
+		Lists the help tags that match the Vim regular expression
+		{pattern}, with the help file each is in, at most 50.  The
+		tags are those of the "doc/tags" files in 'runtimepath'.
+
+						*vim9mcp-help_read*
+help_read {tag}
+		Returns the help text of {tag}: from the line of the tag to
+		the line before the next tag that follows an empty line, at
+		most 300 lines.  The first line is the help file and the line
+		number of the tag.  {tag} is matched exactly.
+
+						*vim9mcp-vimscript_check*
+vimscript_check {path}
+vimscript_check {source}
+		Checks a Vim script without running it: another ViAI reads it
+		with ":source ++dryrun", see |:source-dryrun|, and the errors
+		it reports are returned, or "No errors found".  Give either
+		{path}, the file of the script, or {source}, the text of the
+		script.  For {source} the name of the script in the errors is
+		"<source>"; a relative "import" in it is not found.
+
+A tool that cannot do its work returns the reason with "isError" set: an
+argument missing or of the wrong type, an invalid pattern, a tag or a file
+that is not found.
+
+==============================================================================
+5. Development					*vim9mcp-development*
+
+The tests are in test/.  They start the server with the ViAI that runs
+them: >
+	test/run
+	VIMPROG=/path/to/viai test/run
+	TEST_FILTER=help test/run
+<
+ vim:tw=78:ts=8:noet:ft=help:norl:

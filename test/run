@@ -1,0 +1,26 @@
+#!/bin/sh
+# Run the tests and print what they reported.
+#
+#   ./run
+#   VIMPROG=/path/to/viai ./run      # which ViAI to test with
+#   TEST_FILTER=help ./run           # only the tests whose name matches
+#
+# The ViAI needs the "mcp" channel mode; the server the tests start is that
+# same ViAI.  The exit status is 0 when everything passed.
+here=$(cd "$(dirname "$0")" && pwd)
+rm -f "$here/messages"
+
+# Have every :def compiled while the scripts are read, so that a mistake in
+# one that no test reaches is reported here.
+VIM9MCP_COMPILE_CHECK=1 \
+"${VIMPROG:-viai}" -u NONE -N -n --not-a-term -S "$here/runtest.vim" \
+    >/dev/null 2>&1
+status=$?
+
+if [ -f "$here/messages" ]; then
+    cat "$here/messages"
+else
+    echo "Nothing was written to $here/messages."
+    echo "\"${VIMPROG:-viai}\" may have failed to start; run it by hand to see."
+fi
+exit $status
