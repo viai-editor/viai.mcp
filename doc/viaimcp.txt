@@ -62,10 +62,14 @@ of the plugins on it are found and so are the scripts that a checked script
 imports by name.  Nothing on it is run.  The help files of the ViAI of the
 server are always found.
 
-Get the value with ":echo &rtp" in your ViAI, then for Claude Code: >
-	claude mcp add viaimcp -e VIAIMCP_RUNTIMEPATH=... \
+Get the value from your ViAI with your vimrc, for Claude Code on Unix: >
+	claude mcp add viaimcp \
+		-e VIAIMCP_RUNTIMEPATH="$(viai -u ~/.vimrc -i NONE -es \
+		-c 'call writefile([&rtp], "/dev/stdout")' -c 'qa!')" \
 		-- /path/to/viai.mcp/bin/viaimcp
-<
+<"-es" reads no vimrc, thus "-u" names it.  After changing the plugins, run
+"claude mcp remove viaimcp" and the command again.  On other systems get the
+value with ":echo &rtp" in your ViAI.
 
 ==============================================================================
 4. Tools					*viaimcp-tools*

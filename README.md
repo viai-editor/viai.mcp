@@ -47,12 +47,18 @@ claude mcp add viaimcp -- /path/to/viai.mcp/bin/viaimcp
 The server is started with `--clean`, so the plugins of the user are not on
 `'runtimepath'`.  `$VIAIMCP_RUNTIMEPATH` gives the `'runtimepath'` to use,
 for the help files of the plugins and the scripts imported by name; nothing
-on it is run.  Get the value with `:echo &rtp` in your ViAI:
+on it is run.  Get the value from your ViAI with your vimrc, on Unix:
 
 ```sh
-claude mcp add viaimcp -e VIAIMCP_RUNTIMEPATH=... \
+claude mcp add viaimcp \
+    -e VIAIMCP_RUNTIMEPATH="$(viai -u ~/.vimrc -i NONE -es \
+    -c 'call writefile([&rtp], "/dev/stdout")' -c 'qa!')" \
     -- /path/to/viai.mcp/bin/viaimcp
 ```
+
+`-es` reads no vimrc, thus `-u` names it.  After changing the plugins, run
+`claude mcp remove viaimcp` and the command again.  On other systems get the
+value with `:echo &rtp` in your ViAI.
 
 See `:help viaimcp` for the details.
 
