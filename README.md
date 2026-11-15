@@ -29,7 +29,7 @@ Put viai.mcp on the `'runtimepath'` of your ViAI for `:help viaimcp` and
 `viaimcp#Command()`, with a plugin manager, vim-plug for instance:
 
 ```vim
-Plug 'h-east/viai.mcp'
+Plug 'viai-editor/viai.mcp'
 ```
 
 There is no `plugin/` directory in it, so ViAI runs none of it at startup.

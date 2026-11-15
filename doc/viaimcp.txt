@@ -35,7 +35,7 @@ not have it.
 
 Put viai.mcp on 'runtimepath' for this help and |viaimcp#Command()|, with a
 plugin manager, vim-plug for instance: >
-	Plug 'h-east/viai.mcp'
+	Plug 'viai-editor/viai.mcp'
 <There is no plugin/ directory in it, so ViAI runs none of it at startup.
 
 The server is started by the MCP client.  The command is in bin/: >
