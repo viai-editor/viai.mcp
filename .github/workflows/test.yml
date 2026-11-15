@@ -1,0 +1,77 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build ViAI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libncurses-dev
+          git clone --depth 1 https://github.com/viai-editor/viai.git \
+              "$RUNNER_TEMP/src"
+          cd "$RUNNER_TEMP/src"
+          ./configure --prefix="$HOME/viai" \
+              --enable-gui=no --without-x --disable-nls
+          make -j"$(nproc)"
+          make install
+          echo "$HOME/viai/bin" >> "$GITHUB_PATH"
+
+      - name: Run the tests
+        env:
+          VIMPROG: viai
+        run: |
+          "$VIMPROG" --version | head -1
+          cd test && ./run
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The tests write files and read them back, so they have to come out
+      # the way they went in.
+      - name: Leave the line endings alone
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v5
+
+      # Building ViAI here would want MSVC; these are the same sources,
+      # already built, and new enough for the server.
+      - name: Take the newest ViAI built for Windows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url=$(gh api repos/viai-editor/viai-win32-installer/releases/latest \
+                --jq '.assets[]
+                      | select(.name | test("^gviai_.*_x64\\.zip$"))
+                      | .browser_download_url')
+          echo "$url"
+          curl -sSLo "$HOME/viai.zip" "$url"
+          unzip -q "$HOME/viai.zip" -d "$HOME/viai-win"
+          # viai-launcher holds a stub that looks for an installed copy.
+          echo "VIMPROG=$(find "$HOME/viai-win" -name viai.exe \
+              -not -path '*/viai-launcher/*' | head -n 1)" \
+              >> "$GITHUB_ENV"
+
+      - name: Run the tests
+        run: |
+          "$VIMPROG" --version | head -1
+          cd test && ./run

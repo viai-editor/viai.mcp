@@ -1,5 +1,9 @@
 # viai.mcp
 
+[![Test](https://github.com/viai-editor/viai.mcp/actions/workflows/test.yml/badge.svg)](https://github.com/viai-editor/viai.mcp/actions/workflows/test.yml)
+[![Update doc/tags](https://github.com/viai-editor/viai.mcp/actions/workflows/update-doc-tags.yml/badge.svg)](https://github.com/viai-editor/viai.mcp/actions/workflows/update-doc-tags.yml)
+[![ViAI 1.0.0050+](https://img.shields.io/badge/ViAI-1.0.0050%2B-06281A?logo=data:image/svg%2bxml;base64,PHN2ZyByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+VmlBSTwvdGl0bGU+PHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTUuNzAyIDMuNDg5TDE4Ljk3OSAzLjQ4OUwxOC45NzkgNy41NzRMMjQgNy41NzRMMjQgMjRMNS43MDIgMjRBNS43MDIgNS43MDIgMCAwIDEgMCAxOC4yOThMMCA5LjE5MUE1LjcwMiA1LjcwMiAwIDAgMSA1LjcwMiAzLjQ4OVpNOC45MzYgMjEuMTA2TDEyLjM0IDIxLjEwNkwxOC4yMTMgNy4wNjRMMTQuNTUzIDcuMDY0TDEwLjYzOCAxNy4xOTFMNi43MjMgNy4wNjRMMy4wNjQgNy4wNjRaTTE4Ljk3OSAyMS4xMDZMMjIuMDQzIDIxLjEwNkwyMi4wNDMgMTIuMjU1TDE4Ljk3OSAxMi4yNTVaTTE4Ljk3OSAwTDIyLjA0MyAwTDIyLjA0MyAzLjA2NEwxOC45NzkgMy4wNjRaTTIyLjcyMyAwTDI0IDBMMjQgMy4wNjRMMjIuNzIzIDMuMDY0WiIvPjwvc3ZnPgo=)](#requirements)
+
 A [Model Context Protocol](https://modelcontextprotocol.io) server for ViAI
 help and Vim script, run by [ViAI](https://github.com/viai-editor/viai)
 itself.
