@@ -193,6 +193,9 @@ def VimscriptCheck(args: dict<any>): dict<any>
     endif
     tmp = tempname() .. '.vim'
     writefile(split(source, "\n", true), tmp)
+    # On MS-Windows tempname() may give short names: ":p" expands them to
+    # the long names that the errors show.
+    tmp = fnamemodify(tmp, ':p')
     file = tmp
   endif
 

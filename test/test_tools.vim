@@ -70,7 +70,7 @@ def g:Test_viai_vimscript_check_source()
   var text = helper.TextOf(result)
   assert_match('E1012: Type mismatch; expected number but got string', text)
   assert_match('<source>', text)
-  assert_notmatch(escape(tempname()->fnamemodify(':h'), '\'), text)
+  assert_notmatch('\V' .. escape(tempname()->fnamemodify(':p:h'), '\'), text)
 enddef
 
 def g:Test_viai_vimscript_check_source_ok()
