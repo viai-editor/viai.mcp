@@ -19,6 +19,28 @@ def AddHelp()
   execute 'helptags' fnameescape(PLUGIN .. '/doc')
 enddef
 
+# Puts a help file in the plugin with the forms of a section heading found in
+# the help of ViAI.
+def AddSections()
+  mkdir(PLUGIN .. '/doc', 'p')
+  var sep = repeat('=', 78)
+  writefile(["*xsection.txt*\tSections", '',
+    sep,
+    "1. First\t\t*xsection-first*", '',
+    "\t\t\t\t\t\t*:XFirstCmd*",
+    "\tThe first command.", '',
+    sep, '',
+    "2. Second\t\t*xsection-second*", '',
+    'Text of the second.', '',
+    sep,
+    '3. Third ~',
+    "\t\t\t\t\t\t*xsection-third*", '',
+    "\t\t\t\t\t\t*:XThirdCmd*",
+    "\tThe third command.", '',
+    ' vim:tw=78:ts=8:noet:ft=help:norl:'], PLUGIN .. '/doc/xsection.txt')
+  execute 'helptags' fnameescape(PLUGIN .. '/doc')
+enddef
+
 # The command of the server without the 'runtimepath' of this Vim.
 def ServerCommand(): list<string>
   return [v:progpath, '--clean', '--stdio-channel', '-S',
@@ -40,6 +62,38 @@ def g:Test_runtimepath_from_environment()
   # The help of ViAI is still there.
   result = helper.CallTool('viai_help_read', {tag: 'ch_sendexpr()'})
   assert_false(result.isError)
+enddef
+
+def g:Test_viai_help_read_section()
+  mkdir(PLUGIN, 'R')
+  AddSections()
+  helper.StartServer(ServerCommand(), {VIM9MCP_RUNTIMEPATH: PLUGIN})
+  helper.Handshake()
+  # The heading and its tag on one line.
+  var result = helper.CallTool('viai_help_read', {tag: 'xsection-first'})
+  assert_equal("xsection.txt:4\n1. First\t\t*xsection-first*\n\n"
+    .. "\t\t\t\t\t\t*:XFirstCmd*\n\tThe first command.",
+    helper.TextOf(result))
+  # A tag in the section is not a section heading.
+  result = helper.CallTool('viai_help_read', {tag: ':XFirstCmd'})
+  assert_equal("xsection.txt:6\n\t\t\t\t\t\t*:XFirstCmd*\n"
+    .. "\tThe first command.", helper.TextOf(result))
+  # An empty line before the heading.
+  result = helper.CallTool('viai_help_read', {tag: 'xsection-second'})
+  assert_equal("xsection.txt:11\n2. Second\t\t*xsection-second*\n\n"
+    .. 'Text of the second.', helper.TextOf(result))
+  # The tag on the line after the heading.
+  result = helper.CallTool('viai_help_read', {tag: 'xsection-third'})
+  assert_equal("xsection.txt:16\n3. Third ~\n\t\t\t\t\t\t*xsection-third*\n"
+    .. "\n\t\t\t\t\t\t*:XThirdCmd*\n\tThe third command.",
+    helper.TextOf(result))
+  # The tag of the file.
+  result = helper.CallTool('viai_help_read', {tag: 'xsection.txt'})
+  var lines = split(helper.TextOf(result), "\n", true)
+  assert_equal('xsection.txt:1', lines[0])
+  assert_equal("*xsection.txt*\tSections", lines[1])
+  assert_equal("\tThe third command.", lines[-1])
+  assert_equal(21, len(lines))
 enddef
 
 def g:Test_runtimepath_without_environment()

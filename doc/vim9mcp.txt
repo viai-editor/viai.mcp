@@ -79,9 +79,12 @@ viai_help_search {pattern}
 						*vim9mcp-viai_help_read*
 viai_help_read {tag}
 		Returns the help text of {tag}: from the line of the tag to
-		the line before the next tag that follows an empty line, at
-		most 300 lines.  The first line is the help file and the line
-		number of the tag.  {tag} is matched exactly.
+		the line before the next tag that follows an empty line.  For
+		the tag of a section heading, after a line of "=", it is the
+		whole section, and for the tag of a help file, such as
+		"channel.txt", the whole file.  At most 300 lines are
+		returned.  The first line is the help file and the line
+		number where the text starts.  {tag} is matched exactly.
 
 						*vim9mcp-viai_vimscript_check*
 viai_vimscript_check {path}

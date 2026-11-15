@@ -11,6 +11,8 @@ const MAX_LINES = 300
 # A line that defines a help tag at its end, such as
 #     ch_sendexpr({handle}, {expr} [, {options}])	*ch_sendexpr()*
 const TAG_LINE = '\*[^*|" \t]\+\*\s*$'
+# A line of "=" that starts a section.
+const SECTION_LINE = '^=\{20,}$'
 
 const DEFS = [
   {
@@ -31,7 +33,10 @@ const DEFS = [
     name: 'viai_help_read',
     description: 'Read the ViAI help text of a tag, e.g. "ch_sendexpr()",'
       .. ' "''tabstop''" or ":source-dryrun".  Returns the text from the'
-      .. $' tag to the next tag, at most {MAX_LINES} lines.',
+      .. ' tag to the next tag, or the whole section for the tag of a'
+      .. ' section heading, e.g. "vim9-classes", or the whole file for'
+      .. $' the tag of a help file, e.g. "channel.txt".  At most {MAX_LINES}'
+      .. ' lines.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -118,28 +123,54 @@ def HelpRead(args: dict<any>): dict<any>
     return Text($'Tag "{tag}" not found in {file}', true)
   endif
 
+  # The tag of the file, on the first line, gives the whole file.  The tag of
+  # a section heading gives the whole section: at most two lines without a
+  # tag, the heading or an empty line, come after the line of "=".
+  var section = start == 0
+  var first = start
+  var top = start
+  while top > 0 && lines[top - 1] =~ TAG_LINE
+    top -= 1
+  endwhile
+  if top > 0
+    for k in range(top - 1, max([0, top - 3]), -1)
+      if lines[k] =~ SECTION_LINE
+        section = true
+        first = k + 1
+        break
+      elseif lines[k] =~ TAG_LINE
+        break
+      endif
+    endfor
+  endif
+  while lines[first] =~ '^\s*$'
+    first += 1
+  endwhile
+
   # The tags of the text may take more than one line.
   var i = start + 1
   while i < len(lines) && lines[i] =~ TAG_LINE
     i += 1
   endwhile
-  # The text ends before the next tag that follows an empty line, a line of
-  # "=" that starts a section, or the modeline.
+  # The text ends before the modeline, the line of "=" that starts the next
+  # section unless the text is the whole file, or the next tag that follows
+  # an empty line unless the text is a section.
   while i < len(lines)
-    if (lines[i] =~ TAG_LINE && lines[i - 1] =~ '^\s*$')
-        || lines[i] =~ '^=\{20,}$' || lines[i] =~ '^ vim:'
+    if lines[i] =~ '^ vim:'
+        || (start > 0 && lines[i] =~ SECTION_LINE)
+        || (!section && lines[i] =~ TAG_LINE && lines[i - 1] =~ '^\s*$')
       break
     endif
     i += 1
   endwhile
-  var text = lines[start : i - 1]
+  var text = lines[first : i - 1]
   var cut = len(text) > MAX_LINES
   text = text[: MAX_LINES - 1]
   # Without the empty lines at the end.
   while !text->empty() && text[-1] =~ '^\s*$'
     remove(text, -1)
   endwhile
-  var head = $'{fnamemodify(file, ':t')}:{start + 1}'
+  var head = $'{fnamemodify(file, ':t')}:{first + 1}'
   return Text(([head] + text + (cut ? ['[...]'] : []))->join("\n"))
 enddef
 
