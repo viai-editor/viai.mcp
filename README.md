@@ -25,6 +25,15 @@ ViAI 1.0.0050 or later, which has the "mcp" channel mode.
 
 ## Setup
 
+Put vim9mcp on the `'runtimepath'` of your ViAI for `:help vim9mcp` and
+`vim9mcp#Command()`, with a plugin manager, vim-plug for instance:
+
+```vim
+Plug 'h-east/vim9mcp'
+```
+
+There is no `plugin/` directory in it, so ViAI runs none of it at startup.
+
 The MCP client starts the server with `bin/vim9mcp` (`bin\vim9mcp.cmd` on
 MS-Windows).  It runs `viai` from `$PATH`; `$VIM9MCP_VIM` names another
 ViAI.

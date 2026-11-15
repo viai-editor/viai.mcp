@@ -1,4 +1,4 @@
-*vim9mcp.txt*	A Model Context Protocol server for Vim help and Vim script
+*vim9mcp.txt*	A Model Context Protocol server for ViAI help and Vim script
 
 Author:  Hirohito Higashi <h.east.727@gmail.com>
 License: Vim license, see |license|
@@ -32,6 +32,11 @@ not have it.
 
 ==============================================================================
 3. Setup					*vim9mcp-setup*
+
+Put vim9mcp on 'runtimepath' for this help and |vim9mcp#Command()|, with a
+plugin manager, vim-plug for instance: >
+	Plug 'h-east/vim9mcp'
+<There is no plugin/ directory in it, so ViAI runs none of it at startup.
 
 The server is started by the MCP client.  The command is in bin/: >
 	bin/vim9mcp		(Unix)
