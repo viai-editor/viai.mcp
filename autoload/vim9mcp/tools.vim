@@ -79,7 +79,7 @@ def HelpSearch(args: dict<any>): dict<any>
   if type(pattern) != v:t_string || pattern == ''
     return Text('"pattern" must be a non-empty string', true)
   endif
-  # taglist() gives no error for an invalid pattern, a match does.
+  # taglist() ignores an invalid pattern, but a match gives an error.
   try
     eval '' =~ pattern
   catch
@@ -164,9 +164,11 @@ def VimscriptCheck(args: dict<any>): dict<any>
   endif
 
   # A Vim of its own reads the script: what a dry run defines stays in that
-  # Vim.
+  # Vim.  It finds what the script imports by name on the same
+  # 'runtimepath'.
   var out = tempname()
   var cmd = [v:progpath, '--clean', '-es', '-N',
+    '--cmd', 'let &runtimepath = ' .. string(&runtimepath),
     '--cmd', 'silent! language messages C',
     '-c', 'redir! > ' .. fnameescape(out),
     '-c', 'silent! source ++dryrun ' .. fnameescape(file),

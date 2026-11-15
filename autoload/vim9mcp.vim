@@ -7,7 +7,7 @@ vim9script
 # A client starts it as
 #     viai --clean --stdio-channel -S /path/to/autoload/vim9mcp.vim
 # and talks MCP to it on stdin and stdout.  Command() is that command line
-# for the ViAI it is called in.
+# for the ViAI it is called in, with its 'runtimepath'.
 
 import autoload './vim9mcp/tools.vim'
 
@@ -30,7 +30,7 @@ var conn: channel
 
 export def Command(): list<string>
   if !has(PATCH)
-    throw $'vim9mcp: the server needs ViAI 1.0.0050 or later'
+    throw 'vim9mcp: the server needs ViAI 1.0.0050 or later'
   endif
   var vim = v:progpath
   # The server needs no GUI: use the console program next to gviai.exe.
@@ -40,7 +40,22 @@ export def Command(): list<string>
       vim = console
     endif
   endif
-  return [vim, '--clean', '--stdio-channel', '-S', SCRIPT]
+  return [vim, '--clean', '--stdio-channel',
+    '--cmd', 'let $VIM9MCP_RUNTIMEPATH = ' .. string(&runtimepath),
+    '-S', SCRIPT]
+enddef
+
+# With --clean the plugins of the user are not on 'runtimepath':
+# $VIM9MCP_RUNTIMEPATH gives the value to use.  Nothing on it is run.
+def SetRuntimepath()
+  if $VIM9MCP_RUNTIMEPATH == ''
+    return
+  endif
+  &runtimepath = $VIM9MCP_RUNTIMEPATH
+  # The help of this ViAI is always there.
+  if index(split(&runtimepath, ','), $VIMRUNTIME) < 0
+    &runtimepath ..= ',' .. escape($VIMRUNTIME, ' ,')
+  endif
 enddef
 
 def Reply(id: any, result: any)
@@ -114,6 +129,7 @@ export def Start()
   if !has(PATCH)
     Die('the server needs ViAI 1.0.0050 or later')
   endif
+  SetRuntimepath()
   try
     conn = ch_open('stdio', {mode: 'mcp', callback: OnMessage,
       close_cb: OnClose})

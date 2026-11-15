@@ -5,6 +5,7 @@ vim9mcp-help_read	vim9mcp.txt	/*vim9mcp-help_read*
 vim9mcp-help_search	vim9mcp.txt	/*vim9mcp-help_search*
 vim9mcp-introduction	vim9mcp.txt	/*vim9mcp-introduction*
 vim9mcp-requirements	vim9mcp.txt	/*vim9mcp-requirements*
+vim9mcp-runtimepath	vim9mcp.txt	/*vim9mcp-runtimepath*
 vim9mcp-setup	vim9mcp.txt	/*vim9mcp-setup*
 vim9mcp-tools	vim9mcp.txt	/*vim9mcp-tools*
 vim9mcp-vimscript_check	vim9mcp.txt	/*vim9mcp-vimscript_check*

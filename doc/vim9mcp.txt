@@ -21,7 +21,8 @@ script and runs in a ViAI of its own, which talks MCP on its stdin and stdout
 with the "mcp" channel mode, see |model-context-protocol|.
 
 The answers come from that ViAI: its help files, the help files of the
-plugins on 'runtimepath', and what ViAI reports when it reads a script.
+plugins on the 'runtimepath' it is given, see |vim9mcp-runtimepath|, and
+what it reports when it reads a script.
 
 ==============================================================================
 2. Requirements					*vim9mcp-requirements*
@@ -40,15 +41,26 @@ The server is started by the MCP client.  The command is in bin/: >
 For Claude Code: >
 	claude mcp add vim9mcp -- /path/to/vim9mcp/bin/vim9mcp
 <
-From ViAI, vim9mcp#Command() returns the command line for the ViAI it is
-called in: >
-	:echo vim9mcp#Command()
-<						*vim9mcp#Command()*
+						*vim9mcp#Command()*
 vim9mcp#Command()
 		Returns the command that starts the server as a |List|: the
-		console program of this ViAI with "--clean", "--stdio-channel"
-		and "-S" with the script of the server.  Throws an error when
-		this is not ViAI 1.0.0050 or later.
+		console program of this ViAI with "--clean", "--stdio-channel",
+		the 'runtimepath' of this ViAI, see |vim9mcp-runtimepath|, and
+		"-S" with the script of the server.  Throws an error when this
+		is not ViAI 1.0.0050 or later.
+
+						*vim9mcp-runtimepath*
+The server is started with "--clean", which reads no vimrc and no plugin,
+thus the plugins of the user are not on 'runtimepath'.  The environment
+variable $VIM9MCP_RUNTIMEPATH gives the 'runtimepath' to use: the help files
+of the plugins on it are found and so are the scripts that a checked script
+imports by name.  Nothing on it is run.  The help files of the ViAI of the
+server are always found.
+
+Get the value with ":echo &rtp" in your ViAI, then for Claude Code: >
+	claude mcp add vim9mcp -e VIM9MCP_RUNTIMEPATH=... \
+		-- /path/to/vim9mcp/bin/vim9mcp
+<
 
 ==============================================================================
 4. Tools					*vim9mcp-tools*

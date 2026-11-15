@@ -6,13 +6,14 @@ import autoload '../autoload/vim9mcp.vim'
 var job: job
 export var stderr: list<string> = []
 
-export def StartServer()
+export def StartServer(cmd = vim9mcp.Command(), env: dict<string> = {})
   stderr = []
-  job = job_start(vim9mcp.Command(), {
+  job = job_start(cmd, {
     in_mode: 'mcp', out_mode: 'mcp', err_mode: 'nl',
     err_cb: (_, msg) => {
       add(stderr, msg)
     },
+    env: env,
   })
   assert_equal('run', job_status(job))
 enddef
@@ -34,6 +35,10 @@ enddef
 # Starts the server and does the handshake.
 export def Initialize(version = '2025-06-18'): dict<any>
   StartServer()
+  return Handshake(version)
+enddef
+
+export def Handshake(version = '2025-06-18'): dict<any>
   var resp = Request('initialize', {
     protocolVersion: version,
     capabilities: {},
